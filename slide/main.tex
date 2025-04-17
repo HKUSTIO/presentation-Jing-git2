@@ -3,6 +3,8 @@
 % Use a clean theme as base
 \usetheme{default}
 \usecolortheme{default}
+\usepackage{bm}
+\usepackage{amsmath}
 
 % Custom colors from HKUST logo
 \definecolor{hkustblue}{RGB}{0, 51, 119}    % Navy blue from logo
@@ -20,6 +22,7 @@
 \setbeamercolor{block body}{fg=hkustblue,bg=lightgray}
 \setbeamercolor{title}{fg=hkustblue}
 \setbeamercolor{subtitle}{fg=hkustgold}
+\setbeamertemplate{footline}[frame number]
 
 % Remove navigation symbols
 \setbeamertemplate{navigation symbols}{}
@@ -43,11 +46,11 @@
 \usepackage{hyperref}
 
 % Title page information
-\title{Presentation Title}
-\subtitle{Subtitle}
-\author{Your Name}
+\title{Two-Sided Markets, Pricing, and Network Effects}
+\subtitle{Part II: Identification of Network Effects}
+\author{Jing You, Dan Song}
 \institute{Hong Kong University of Science and Technology}
-\date{\today}
+\date{April 17, 2025}
 
 \begin{document}
 
@@ -61,54 +64,342 @@
     \tableofcontents
 \end{frame}
 
-% Section 1
-\section{Introduction}
-\begin{frame}{Introduction}
-    \begin{itemize}
-        \item First point
-        \item Second point
-        \item Third point
-    \end{itemize}
-\end{frame}
-
-% Section 2
-\section{Methods}
-\begin{frame}{Methods}
-    \begin{block}{Important Block}
-        Key information goes here
-    \end{block}
-    
-    \begin{itemize}
-        \item Method 1
-        \item Method 2
-    \end{itemize}
-\end{frame}
-
-% Section 3
-\section{Results}
-\begin{frame}{Results}
-    \begin{columns}
-        \column{0.5\textwidth}
+\section{Direct Network Effects}
+\subsection{Base Model}
+\begin{frame}{Direct v.s. Indirect Network Effects}
+    \begin{block}{Definition}
         \begin{itemize}
-            \item Result 1
-            \item Result 2
+            \item \textbf{Direct network effects:} The value of a product depends on other consumers
+            purchasing or using the same product.
+            \item \textbf{Indirect network effects:} The value depends on the provision of some com
+            plementary good and that provision depends on other consumers purchasing or using
+            the product.
+        \end{itemize}            
+    \end{block}
+
+    \begin{itemize}
+        \item Why begin with direct network effects?
+        \begin{itemize}
+            \item Only one product. $\Rightarrow$ Provides a easier context for identification.
+            \item Lack of data. $\Rightarrow$ Model indirect as direct network effects.
+            \item More comparable to other fields of economics.
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Base Model: Setup}
+    \begin{itemize}
+        \item A partition of agents into markets $m = 1,...,M$. Each market has one network and agents choose how much
+        to use the network in their market ($a$).
+        \item Network effects operate only within a market.
+        \item Each agent makes a continuous choice $a \in R$ that incurs a constant marginal price of $P_m$.
+        \item The optimal choice for each agent:
+        $$ a = \beta_0 - \beta_1P_m + \textcolor{red}{\beta_2}q_m + \zeta_m + \varepsilon $$
+        \item $q_m = \overline{a}$: the average choice of agents in the same market.
+        \item $\beta_2$: the endogenous effect, or the direct network effect.
+    \end{itemize}
+
+\end{frame}
+
+\subsection{Identification Issues}
+\begin{frame}{Base Model: Identification Concerns}
+    $$ a = \beta_0 - \beta_1P_m + \textcolor{red}{\beta_2}q_m + \zeta_m + \varepsilon $$
+    \vspace{-0.3cm}
+    \begin{itemize}
+        \item Omitted variables or correlation in unobserved terms across agents in the same market ($\zeta_m$).
+        \item Simultaneity in choices.
+        \item More parameters than regressors $\Rightarrow$ Parameters are unidentified.
+    \end{itemize}
+    \begin{align*}
+        q_m &= \beta_0 - \beta_1P_m + \beta_2q_m + \zeta_m \\[5pt]
+        q_m &= \frac{\beta_0-\beta_1P_m+\zeta_m}{1-\beta_2} \\[5pt]
+        a &= \frac{\beta_0-\beta_1P_m+\zeta_m}{1-\beta_2} + \varepsilon
+    \end{align*}
+    % eg. Intuitively, suppose that we observe the price
+    % decrease on a platform. The reduced price leads agents to use the platform more as
+    % governed by β1, a standard demand effect. The increased use makes the platform
+    % more valuable to agents and thus leads to increased usage as governed by β2, the
+    % network effect. But all we observe in data is that price went down and quantity went
+    % up, and we cannot distinguish how much of that increase was due to shifts along the
+    % demand curve (β1) versus the demand curve shifting out (β2).
+\end{frame}
+
+\begin{frame}{One Solution: Consumer Heterogeneity}
+    \begin{itemize}
+        \item If we observe individual-level explanatory variables, the situation is somewhat improved.
+        \item $\nu$: Demographic, such as income or individual-specific platform tax or subsidy.
+    \end{itemize}
+    \begin{align*}
+        a &= \beta_0 - \beta_1P_m + \textcolor{red}{\beta_2}q_m + \beta_3\nu + \zeta_m + \varepsilon \\[5pt]
+        q_m &= \frac{\beta_0-\beta_1P_m+\beta_3\bar{\nu_m} + \zeta_m}{1-\beta_2} \\[5pt]
+        a &= \frac{\beta_0-\beta_1P_m+\textcolor{red}{\beta_2\beta_3}\bar{\nu_m} + \zeta_m}{\textcolor{red}{1-\beta_2}} + \textcolor{red}{\beta_3}\nu + \varepsilon
+    \end{align*}
+    \vspace{-0.2cm}
+    \begin{itemize}
+        \item Intuition: Exogenous characteristics of other agents in the market ($\overline{\nu}_m$) is an IV for their choices ($q_m$).
+    \end{itemize}
+% use vm as an instrument for qm (correlated with qm, not correlated with epsilon. eq29 is the 1st stage. ) 
+\end{frame}
+
+\begin{frame}{Caveat: Contextual Effects}
+    \begin{itemize}
+        \item One ignored effect: $\overline{\nu}_m$ directly affects $a$. $\Rightarrow$ An agent could be directly affected by the characteristics of others in the market separately from the effect of their choices $a$.
+        \item Example: Peers from minority groups/wealthy classmates $\Rightarrow$ students' performance.
+    \end{itemize}
+    \begin{align*}
+        a &= \beta_0 - \beta_1P_m + \textcolor{red}{\beta_2}q_m + \beta_3\nu + \textcolor{blue}{\beta_4\overline{\nu}_m}+\zeta_m + \varepsilon \\[5pt]
+        a &= \frac{\beta_0-\beta_1P_m+\textcolor{red}{(\beta_2\beta_3+\beta_4)}\overline{\nu}_m + \zeta_m}{\textcolor{red}{1-\beta_2}} + \textcolor{red}{\beta_3}\nu + \varepsilon
+    \end{align*}
+    \begin{itemize}
+        \item $\Rightarrow$ Not sufficient to identify $\beta_2$.
+    \end{itemize}
+\end{frame}
+
+\subsection{Solutions}
+\begin{frame}{Solution: Random Assignment}
+    $$ a = \beta_0 - \beta_1P_m + \beta_2q_m + \zeta_m + \varepsilon $$
+    \vspace{-0.2cm}
+    \begin{itemize}
+        \item Identification problem: Self-selection of agents into markets.
+        \item Solution: Random assignment to markets.
+
+        \item E.g. random matching of college roommates $\Rightarrow$ effects of roommate characteristics on GPA
+        \item If selection is the only source of variation in $\zeta_m$, random assignment can eliminate $\zeta_m$. 
+        \begin{itemize}
+            \item Not usually the case: common market shocks.
+            \item E.g. unobserved market campaigns.
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Solution: Heterogenous Networks}
+    \vspace{-0.1cm}
+    \begin{itemize}
+        \item Alternative way to build the model: allow agents to respond to only a subset of agents in the same market.
+        \item $\bm{\Lambda}$: a square matrix with dimension equal to
+        the number of agents.
+        \begin{itemize}
+            \item $\lambda_{ij}= 1$ if $i$ is affected by $j$ and $\lambda_{ij}= 0$ otherwise.
+            \item Linkage between agents.
+        \end{itemize}
+    \end{itemize}
+    \vspace{-0.2cm}
+    \begin{align*}
+        \bm{a} &= \beta_0 - \beta_1 \bm{P} + \textcolor{red}{\beta_2} \bm{\Lambda} \bm{a} + \beta_3 \bm{\nu} + \bm{\gamma} + \bm{\varepsilon} \\
+        \bm{a} &= (1 - \beta_2 \bm{\Lambda})^{-1} (\beta_0 - \beta_1 \bm{P} + \beta_3 \bm{\nu} + \bm{\gamma} + \bm{\varepsilon}) \\
+        \mathbb{E}[\bm{\Lambda} \bm{\alpha} | \bm{P}, \bm{\nu}] &= (1 - \beta_2 \bm{\Lambda})^{-1} \bm{\Lambda} (\beta_0 - \beta_1 \bm{P} + \beta_3 \bm{\nu} + \bm{\gamma})
+    \end{align*}
+    \vspace{-0.3cm}
+    \begin{itemize}
+        \item potential instrument for $\bm{\Lambda}\bm{a}$: $\bm{\Lambda}\bm{\nu}$
+        \item exogenous characteristics of connected agents $\Rightarrow$ choice of neighbors
+    \end{itemize}
+\end{frame}
+% 7.2.x
+\begin{frame}{Solution: Dynamics}
+    $$ a = \beta_0 - \beta_1P_m + \beta_2q_m + \zeta_m + \varepsilon $$
+    \begin{itemize}
+        \item Use \textbf{installed base} as the proxy for $q_m$.
+        \item Rationale 1: Past choices can sometimes be treated as exogenous to current choices.
+        \item Rationale 2: Under imperfect information, agents do not know others' current choices, and use installed base as a predictor of current choices.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Solution: Variance}
+    \begin{itemize}
+        \item Use conditional variance instead of conditional mean to identify the existence of network effects.
+        \item Assume there is a finite, discrete set of consumers so the average of individual shocks, $\overline{\varepsilon}_m$, does not average out.
+    \end{itemize}
+    \begin{align*}
+        q_m &= \beta_0 - \beta_1P_m + \beta_2q_m + \zeta_m + \overline{\varepsilon}_m \\[5pt]
+        a &= \frac{\beta_0-\beta_1P_m+\zeta_m}{1-\beta_2} + \frac{\beta_2}{1-\beta_2}\overline{\varepsilon}_m + \varepsilon
+    \end{align*}
+    \vspace{-0.3cm}
+    \begin{itemize}
+        \item $\overline{\varepsilon}_m$ affects $a$ only if the network effect parameter $\beta_2$ is non-zero.
+        \item Intuition: With network effects, the choices $a$ respond to the average shock in the market and if the variance of the average shock increases, so should the variance of $a$.
+    \end{itemize}
+    
+\end{frame}
+
+\section{Indirect Network Effects}
+\subsection{Identification Issues}
+\begin{frame}{Indirect v.s. Direct Network Effect}
+    \begin{itemize}
+        \item \textbf{Direct network effects:} 
+        $$ a = \beta_0 - \beta_1P_m + \beta_2q_m + \zeta_m + \varepsilon $$
+        \item \textbf{Indirect network effects:}
+        $$ a_i = \beta_{i0}-\beta_{i1}P_{im}+\textcolor{red}{\gamma_{i}q_{jm}}+\xi_{im}+\varepsilon$$
+        \item Aggregate across agent set $i$:
+        $$q_{im} = \beta_{i0} - \beta_{i1}P_{im}+\gamma_{i}q_{jm}+\xi_{im}$$
+        \item Still simultaneity problem: $\xi_{im} \Rightarrow q_{im} \Rightarrow a_{j} \Rightarrow q_{jm}$ 
+        \item Solution: Find variables that affect one side of the market but not the other.
+    \end{itemize}
+\end{frame}
+
+\subsection{Solution: Exclusion in Two-Sided Markets}
+\begin{frame}{Example: Competitive Bottleneck}
+    \begin{itemize}
+        \item \textbf{Competitive bottleneck:} Single-homing on one side of the market and multi-homing on the other.
+        \item Example: Consumers only read a single newspaper but advertisers appear in multiple newspapers.
+        \item Consumer utility:
+    \end{itemize}
+    \vspace{-0.3cm}
+    \begin{align*}
+        u_{1m}^{k} = \beta_{10} - \beta_{11}P_{1m}^{k} + x_{1m}^{k}\beta_{12} + \gamma_{1m}^{k}q_{2m}^{k} + \xi_{1m}^{k} + \varepsilon_{1m}^{k} \\[5pt]
+    \end{align*}
+    \vspace{-1.3cm}
+    \begin{itemize}
+        \item Logit form of market share $s_{1m}^{k}$, take logs:
+    \end{itemize}
+    \vspace{-0.1cm}
+    \begin{align*}
+        ln(s_{1m}^{k}) - ln(s_{1m}^{0}) = \beta_{10} - \beta_{11}P_{1m}^{k} + x_{1m}^{k}\beta_{12} + \gamma_{1m}^{k}q_{2m}^{k} + \xi_{1m}^{k}
+    \end{align*}
+    \vspace{-0.5cm}
+    \begin{itemize}
+        \item Demand for the multi-homing seller side:
+    \end{itemize}
+    \begin{align*}
+        q_{2m}^{k} = \beta_{20} - \beta_{21}P_{2m}^{k} + x_{2m}^{k}\beta_{22} + \gamma_{2m}^{k}q_{1m}^{k} + \xi_{2m}^{k}
+    \end{align*}
+\end{frame}
+
+\begin{frame}{Competitive Bottleneck: Identification Issue}
+    \vspace{-1.5cm}
+    \begin{align*}
+        ln(s_{1m}^{k}) - ln(s_{1m}^{0}) &= \beta_{10} - \beta_{11}P_{1m}^{k} + x_{1m}^{k}\beta_{12} + \gamma_{1m}^{k}q_{2m}^{k} + \xi_{1m}^{k} \\[5pt]
+        \textcolor{red}{q_{2m}^{k}} &= \beta_{20} - \beta_{21}P_{2m}^{k} + x_{2m}^{k}\beta_{22} + \gamma_{2m}^{k}\textcolor{red}{q_{1m}^{k}} + \xi_{2m}^{k}
+    \end{align*}
+    \vspace{-0.5cm}
+    \begin{itemize}
+        \item Identification problem: $q_{1m}^{k}$ and $q_{2m}^{k}$ are endogenous.
+        \item Solution: Use variables in $x_{im}^{k}$ excluded from $x^{k}_{jm}$ to identify parameters in equation $j$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Identification of Indirect Network Effect: Examples}
+    \begin{enumerate}
+        \item Yellow Pages directories. \textcolor{blue}{(Rysman, 2004)}
+        \begin{itemize}
+            \item Consumer demand for Yellow Pages advertising. Advertiser demand for readership.
+            \item Advertiser-side shifter: number of people covered in a directory.
+            \item Consumer-side shifter: consumer demographics.
+        \end{itemize}
+        \vspace{0.1cm}
+
+        \item Digital movies \& projection technology. \textcolor{blue}{(Caoui, 2020)}
+        \begin{itemize}
+            \item Consumer demand for digital movies. Movie theaters demand for digtal projection technology.
+            \item Uses the digital production of movies in the United States as an exogenous shifter of digital movie availability in France, as many US movies are released in France.
+        \end{itemize}
+        \vspace{0.1cm}
+
+        \item Electric vehicles \& charging stations. \textcolor{blue}{(Li et al., 2017)}
+        \begin{itemize}
+            \item Gas prices affect only consumer demand. $\Rightarrow$ Identify
+            the effect of consumers on charging stations.
+        \end{itemize}
+    \end{enumerate}
+\end{frame}
+
+\section{Empirical Work on Pricing in Platform Studies}
+% \begin{frame}{Emprical Work on Pricing in Platform Studies: Two Approaches}
+%     \begin{itemize}
+%         \item \textbf{Treating price as endogenous}
+%         \begin{itemize}
+%             \item Observe many platforms setting prices.
+%             \item Study how observed prices respond to factors, such as market structure.
+%             \item Determines whether platform behavior is consistent with the theory.
+%         \end{itemize}
+%         \vspace{0.3cm}
+            
+%         \item \textbf{Treating price as exogenous}
+%         \begin{itemize}
+%             \item Observe one plaftorm or set of platforms with relatively few sets of prices, such as a single pricing schedule used in many geographic markets.
+%             \item Model how agents interact on this platform.
+%             \item Study pricing by analyzing how agents would behave under some counterfactual pricing regime.
+%         \end{itemize}
+%     \end{itemize}
+% \end{frame}
+% \subsection{Price as Endogenous}
+\begin{frame}{Example: Yellow Pages directories \textcolor{blue}{(Rysman, 2004)}}
+    \begin{itemize}
+        \item Observes many markets, each populated by several Yellow Pages directories.
+        \item Models quantities and price as choice variable.
+        \item Simulates outcomes as the number of competing directories change.
+        \item Result: More directories reduce market power but also dissipate network effects. The former effect dominates, so market efficiency is enhanced as the number of directory increases.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Example: German magazines \textcolor{blue}{(Kaiser and Wright, 2006)}}
+    \begin{itemize}
+        \item Two sides: Readers and advertisers. Both sides single-home.
+        \item Cost shifter: Prices of publishers in related markets.
+        \item Seesaw effect: Profits are collected largely from the advertiser side rather than the consumer side. Higher demand on the advertiser side actually reduces consumer prices as magazines seek to attract these advertisers with large readership.
+        \item Extentions:
+        \begin{itemize}
+            \item \textcolor{blue}{Argentesi and Filistrucchi (2007)}: Italian newspapers, market power.
+            \item \textcolor{blue}{Chandra and Collard Wexler (2009)}: Mergers between newspapers. $\Rightarrow$ The logic of two-sided markets implies that prices do not necessarily increase.
+            \item \textcolor{blue}{Jeziorski (2014)}: A merger results in market power that allows radio stations to lower the quantity and increase the price of advertisements.
+            \item \textcolor{blue}{Fan (2013)}: Quality characteristics such as news content.
         \end{itemize}
         
-        \column{0.5\textwidth}
-        % Placeholder for a figure
-        \centering
-        [Your figure here]
-    \end{columns}
-\end{frame}
-
-% Section 4
-\section{Conclusion}
-\begin{frame}{Conclusion}
-    \begin{itemize}
-        \item Main finding 1
-        \item Main finding 2
-        \item Future work
     \end{itemize}
 \end{frame}
+
+\begin{frame}{Seesaw Effect}
+    \vspace{-0.5cm}
+    \textbf{A shock that tends to raise price on one side often reduces prices on the other side.}
+    \begin{itemize}
+        \item \textcolor{blue}{Seamans and Zhu (2014)}: newspapers with advertisement.
+        \begin{itemize}
+            \item Question: How newspaper prices and outcomes respond to the entry of Craigslist, which cannibalizes classified advertisement revenue.
+            \item Result: Consumer prices increase and advertiser prices decrease.
+            \item Interpretation: The reduction in demand for classified advertisements reduces the value of consumers leading to an increase in consumer price, and the resulting reduction in readers lowers value, and thus price, to advertisers.
+        \end{itemize}
+
+        \item \textcolor{blue}{Boik (2016)}: cable systems.
+        \begin{itemize}
+            \item Two sides: content providers (e.g. local television stations) and consumers.
+            \item Result: Local television stations in markets with high advertisement rates set lower fees to cable systems as the advertising rates incentivize the stations to seek more consumers.
+        \end{itemize}
+
+        \item \textcolor{blue}{Kay et al. (2018), Manuszak and Wozniak (2017)}: Payments.
+    \end{itemize}
+
+\end{frame}
+
+\begin{frame}{Seesaw Effect (Cont'd)}
+    \textbf{Competition between firms would lead to worse prices for some agents.}
+    \vspace{0.5cm}
+    \begin{itemize}
+        \item \textcolor{blue}{Boik (2016)}: cable systems.
+        \begin{itemize}
+            \item In markets with more substantial competition between television
+            delivered by cable companies and telephone companies, local television stations charge lower rather than higher fees.
+            \item Explanation: local television stations multi-home and the benefits of competition between platforms (cable and telephone) go to the single-homers, the consumers.
+        \end{itemize}
+        \vspace{0.1cm}
+
+        \item \textcolor{blue}{Jin and Rysman (2015)}: sports card conventions.
+        \begin{itemize}
+            \item Two sides: Buyers and sellers of sports memorabilia. Take convention organizer as the platform.
+            \item Observe prices charged to each side at thousands of conventions.
+            \item Finding: Pricing responds to competition between platforms much more on the single homing side. About 50\% of conventions offer free admission to consumers.
+        \end{itemize}
+    \end{itemize}
+
+\end{frame}
+% \subsection{Price as Exogenous}
+% \begin{frame}{Price as Exogenous: Examples}
+%     This branch of research studies a platform with fixed prices and studies how agents interact on the platform. They typically study counterfactual outcomes under alternative pricing structures using structural estimation.
+%     \begin{itemize}
+%         \item 
+%     \end{itemize}
+% \end{frame}
+% \subsection{Matching}
+
 
 \end{document} 
