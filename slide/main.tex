@@ -202,13 +202,16 @@
     \begin{itemize}
         \item Use \textbf{installed base} as the proxy for $q_m$.
         \item Rationale 1: Past choices can sometimes be treated as exogenous to current choices.
+        \begin{itemize}
+            \item Assumption: The error term should be independent over time.
+        \end{itemize}
         \item Rationale 2: Under imperfect information, agents do not know others' current choices, and use installed base as a predictor of current choices.
     \end{itemize}
 \end{frame}
 
 \begin{frame}{Solution: Variance}
     \begin{itemize}
-        \item Use conditional variance instead of conditional mean to identify the existence of network effects.
+        \item \textcolor{blue}{Graham(2008)} use conditional variance instead of conditional mean to identify the existence of network effects.
         \item Assume there is a finite, discrete set of consumers so the average of individual shocks, $\overline{\varepsilon}_m$, does not average out.
     \end{itemize}
     \begin{align*}
